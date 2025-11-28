@@ -16,7 +16,7 @@ app.add_middleware(
 
 orgs_db: List[Organization] = [
      {"id": 1, "name": "Pintel Ai"},
-     {"id": 2, "name": "Capgemini"},
+     {"id": 2, "name": "Amazon"},
      {"id": 3, "name": "Clay"}
 ]
 
