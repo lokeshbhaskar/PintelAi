@@ -16,7 +16,14 @@ def get_orgs():
     return orgs_db
 
 
-
 @app.get("/orgs/details", response_model=list[OrgDetails])
 def get_orgs_details():
     return org_details
+
+
+@app.get("/orgs/{org_id}/credits",response_model=list[OrgDetails])
+def get_org_credits(org_id: int):
+    for org in org_details:
+        if org.id == org_id:
+            return [org]
+    

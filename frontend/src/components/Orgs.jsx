@@ -64,7 +64,7 @@ const Orgs = () => {
                     filteredOrgs.map(org => (
                         <div
                             key={org.id}
-                            onClick={() => navigate(`/org/${org.id}`)}
+                            onClick={() => navigate(`/org/${org.id}/credits`)}
                             className="p-4 bg-white shadow-md rounded-lg border border-gray-200
                                    transform transition-all duration-300 ease-in-out
                                    hover:scale-101 hover:shadow-xl hover:border-blue-300 hover:bg-blue-50 cursor-pointer"

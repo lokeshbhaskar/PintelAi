@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import Orgs from './components/Orgs'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import OrgPage from './page/OrgPage'
+import CreditPage from './page/CreditPage'
 
 function App() {
   const [showOrgs, setShowOrgs] = useState(false)
@@ -22,6 +23,7 @@ function App() {
         <Routes>
           <Route path='/' element={showOrgs && <Orgs />} />
           <Route path='/org/:id' element={<OrgPage />} />
+          <Route path='/org/:id/credits' element={<CreditPage />} />
         </Routes>
       </BrowserRouter>
     </div>
