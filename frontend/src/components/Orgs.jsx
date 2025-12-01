@@ -2,6 +2,7 @@ import React from 'react'
 import { useState, useEffect } from 'react';
 import axios from 'axios'
 import SearchBar from './SearchBar';
+import { useNavigate } from 'react-router-dom';
 
 const Orgs = () => {
     const [orgs, setOrgs] = useState([]);
@@ -9,6 +10,7 @@ const Orgs = () => {
     const [filteredOrgs, setFilteredOrgs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const navigate = useNavigate()
 
     useEffect(() => {
         const fetchOrgs = async () => {
@@ -62,6 +64,7 @@ const Orgs = () => {
                     filteredOrgs.map(org => (
                         <div
                             key={org.id}
+                            onClick={() => navigate(`/org/${org.id}`)}
                             className="p-4 bg-white shadow-md rounded-lg border border-gray-200
                                    transform transition-all duration-300 ease-in-out
                                    hover:scale-101 hover:shadow-xl hover:border-blue-300 hover:bg-blue-50 cursor-pointer"

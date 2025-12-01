@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import Orgs from './components/Orgs'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import OrgPage from './page/OrgPage'
 
 function App() {
   const [showOrgs, setShowOrgs] = useState(false)
@@ -14,9 +16,14 @@ function App() {
   }, [])
 
   return (
-
     <div>
-      {showOrgs && <Orgs />}
+
+      <BrowserRouter>
+        <Routes>
+          <Route path='/' element={showOrgs && <Orgs />} />
+          <Route path='/org/:id' element={<OrgPage />} />
+        </Routes>
+      </BrowserRouter>
     </div>
   )
 }
