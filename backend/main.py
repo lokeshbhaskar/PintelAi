@@ -1,11 +1,6 @@
-from typing import List
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-
-class Organization(BaseModel):
-    id: int
-    name: str
+from db.orgs_db import orgs_db
 
 app = FastAPI()
 
@@ -14,12 +9,6 @@ app.add_middleware(
     allow_origins=["http://localhost:5173"],
 )
 
-orgs_db: List[Organization] = [
-     {"id": 1, "name": "Pintel Ai"},
-     {"id": 2, "name": "Amazon"},
-     {"id": 3, "name": "Clay"}
-]
-
 @app.get("/orgs")
-def orgs():
+def get_orgs():
     return orgs_db

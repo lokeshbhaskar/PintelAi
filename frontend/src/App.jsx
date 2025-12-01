@@ -8,15 +8,16 @@ function App() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowOrgs(true)
-    }, 3000)
+    }, 2000)
 
     return () => clearTimeout(timer)
   }, [])
 
   return (
-    <>
+
+    <div>
       {showOrgs && <Orgs />}
-    </>
+    </div>
   )
 }
 
