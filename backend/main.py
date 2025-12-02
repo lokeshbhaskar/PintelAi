@@ -40,7 +40,7 @@ def add_org_credits(org_id: int, body:CreditRequest):
         if org.id == org_id:
             org.credits += body.credits
         return {
-            "message": "Credits added successfully",
+            "message": f"Successfully added {body.credits} credits",
             "org_id": org_id,
             "new_credits": org.credits
         }   

@@ -78,7 +78,7 @@ const OrgPage = () => {
                     >
                         Add Credits
                     </button>
-                    {message && <p className="mt-4 text-gray-700 text-center">{message}</p>}
+                    {message && <p className="mt-4 font-medium text-gray-800 text-center">{message}</p>}
                 </div>
             </div>
         </div>
