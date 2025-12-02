@@ -1,6 +1,5 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const OrgPage = () => {
@@ -8,24 +7,20 @@ const OrgPage = () => {
     const [org, setOrg] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [credits, setCredits] = useState(0);
-    const navigate = useNavigate();
+    const [credits, setCredits] = useState("");
     const [message, setMessage] = useState("");
 
+    // get org details (name,credits) from backend
     useEffect(() => {
         const fetchOrg = async () => {
             try {
-                const res = await fetch("http://localhost:8000/orgs/details");
-                const data = await res.json();
+                const res = await axios.get("http://localhost:8000/orgs/details");
+                const data = res.data;
 
                 const filtered = data.find((item) => item.id === Number(id));
-
-                if (!filtered) {
-                    setError("Organization not found.");
-                } else {
-                    setOrg(filtered);
-                }
-            } catch (err) {
+                if (!filtered) setError("Organization not found.");
+                else setOrg(filtered);
+            } catch {
                 setError("Failed to load organization details.");
             } finally {
                 setLoading(false);
@@ -34,89 +29,56 @@ const OrgPage = () => {
 
         fetchOrg();
     }, [id]);
-
-    // handle adding credits function
+    // handle add credits function
     const handleAddCredits = async () => {
-        if (!credits) {
-            setMessage("Enter valid credits number")
+        if (!credits || credits <= 0) {
+            setMessage("Enter a valid number");
+            return;
         }
         try {
-            const res = await axios.post(`http://localhost:8000/org/${id}/credits`, { credits });
+            const res = await axios.post(
+                `http://localhost:8000/org/${id}/credits`,
+                { credits: Number(credits) }
+            );
+
             setMessage(res.data.message);
-            navigate(`/org/${id}/credits`);
-        } catch (error) {
+            setOrg((prev) => ({ ...prev, credits: prev.credits + Number(credits) }));
+            setCredits("");
+        } catch {
             setMessage("Failed to add credits");
         }
-    }
+    };
+
     if (loading) return <div className="text-center mt-20 text-xl">Loading...</div>;
     if (error) return <div className="text-center mt-20 text-red-500 text-xl">{error}</div>;
 
     return (
-        <div className="min-h-screen bg-gray-100 flex justify-center items-start py-16 px-4">
-            <div className="bg-[#fceaf6] w-full max-w-2xl shadow-lg rounded-xl p-8">
-
-                <h1 className="text-3xl font-bold text-gray-800 mb-3">
-                    {org.name}
-                </h1>
-                <div className="border rounded-lg p-5 bg-[#f3ebf0]">
-                    <h2 className="text-xl font-semibold mb-2 text-gray-800">
-                        Company Overview
-                    </h2>
-                    <p className="text-gray-700 mb-4">{org.description}</p>
-
-                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <p className="text-sm text-gray-500">Industry</p>
-                            <p className="font-medium text-gray-900">{org.industry}</p>
-                        </div>
-
-                        <div>
-                            <p className="text-sm text-gray-500">Location</p>
-                            <p className="font-medium text-gray-900">{org.headquarters}</p>
-                        </div>
-
-                        <div>
-                            <p className="text-sm text-gray-500">Website</p>
-                            <p className="font-medium text-blue-600 underline break-all">
-                                {org.website}
-                            </p>
-                        </div>
-                    </div>
+        <div className="min-h-screen bg-gray-300 flex justify-center items-start py-16 px-4">
+            <div className="w-full max-w-lg bg-gray-200 shadow-md rounded-xl p-8 border">
+                <h1 className="text-2xl font-semibold text-gray-800 mb-6">{org.name}</h1>
+                <div className="p-5 rounded-lg bg-gray-50 border mb-8">
+                    <p className="text-sm text-gray-500">Total Credits</p>
+                    <p className="text-3xl font-bold text-gray-900 mt-1">{org.credits}</p>
                 </div>
-                <div className="mt-8 p-4 bg-white border rounded-lg shadow-md">
-                    <h2 className="text-xl font-medium mb-2">Add Credit</h2>
+
+                <div className="bg-white p-5 border rounded-lg shadow-sm">
+                    <h2 className="text-lg font-medium text-gray-800 mb-3">Add Credits</h2>
+
                     <input
                         type="number"
                         value={credits}
                         onChange={(e) => setCredits(e.target.value)}
                         placeholder="Enter credits"
-                        className="w-full p-2 border rounded-md mb-4"
+                        className="w-full p-3 border rounded-md focus:ring-1 focus:ring-gray-400 outline-none mb-4"
                     />
+
                     <button
                         onClick={handleAddCredits}
-                        className="py-3 px-3 rounded-lg bg-green-500 font-semibold cursor-pointer text-white hover:bg-green-700 transition">
+                        className="w-full py-3 bg-gray-600 text-white font-medium rounded-md cursor-pointer hover:bg-gray-700 transition"
+                    >
                         Add Credits
                     </button>
-                    {message && <p className="mt-4 text-gray-700">{message}</p>}
-                </div>
-
-                <div className="mt-8 flex justify-center gap-4">
-
-                    <button
-                        // onClick={() => navigate("/")}
-                        onClick={() => window.history.back()}
-                        className="px-5 py-2 cursor-pointer bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-700 transition"
-                    >
-                        Go Back
-                    </button>
-                    <a
-                        href={org.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-5 py-2 bg-green-500 text-white rounded-lg font-medium hover:bg-green-700 transition"
-                    >
-                        Visit Website
-                    </a>
+                    {message && <p className="mt-4 text-gray-700 text-center">{message}</p>}
                 </div>
             </div>
         </div>
