@@ -63,7 +63,7 @@ const Orgs = () => {
                     filteredOrgs.map(org => (
                         <div
                             key={org.id}
-                            onClick={() => navigate(`/org/${org.id}/credits`)}
+                            // onClick={() => navigate(`/org/${org.id}/credits`)}
                             className="p-4 bg-white shadow-md rounded-lg border border-gray-200
                 transform transition-all duration-300 ease-in-out
                 hover:scale-101 hover:shadow-xl hover:border-blue-300 hover:bg-blue-50 cursor-pointer"
@@ -75,7 +75,7 @@ const Orgs = () => {
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        navigate(`/org/${org.id}`);
+                                        navigate(`/orgs/${org.id}`);
                                     }}
                                     className="mt-3 px-4 py-2 cursor-pointer bg-cyan-600 text-white rounded-md hover:bg-cyan-700 transition"
                                 >

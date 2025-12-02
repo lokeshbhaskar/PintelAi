@@ -22,8 +22,8 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path='/' element={showOrgs && <Orgs />} />
-          <Route path='/org/:id' element={<OrgPage />} />
-          <Route path='/org/:id/credits' element={<CreditPage />} />
+          <Route path='/orgs/:id' element={<OrgPage />} />
+          {/* <Route path='/org/:id/credits' element={<CreditPage />} /> */}
         </Routes>
       </BrowserRouter>
     </div>
