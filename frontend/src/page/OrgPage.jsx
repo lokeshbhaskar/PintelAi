@@ -1,13 +1,16 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const OrgPage = () => {
     const { id } = useParams();
     const [org, setOrg] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [credits, setCredits] = useState(0);
     const navigate = useNavigate();
+    const [message, setMessage] = useState("");
 
     useEffect(() => {
         const fetchOrg = async () => {
@@ -32,6 +35,19 @@ const OrgPage = () => {
         fetchOrg();
     }, [id]);
 
+    // handle adding credits function
+    const handleAddCredits = async () => {
+        if (!credits) {
+            setMessage("Enter valid credits number")
+        }
+        try {
+            const res = await axios.post(`http://localhost:8000/org/${id}/credits`, { credits });
+            setMessage(res.data.message);
+            navigate(`/org/${id}/credits`);
+        } catch (error) {
+            setMessage("Failed to add credits");
+        }
+    }
     if (loading) return <div className="text-center mt-20 text-xl">Loading...</div>;
     if (error) return <div className="text-center mt-20 text-red-500 text-xl">{error}</div>;
 
@@ -67,6 +83,23 @@ const OrgPage = () => {
                         </div>
                     </div>
                 </div>
+                <div className="mt-8 p-4 bg-white border rounded-lg shadow-md">
+                    <h2 className="text-xl font-medium mb-2">Add Credit</h2>
+                    <input
+                        type="number"
+                        value={credits}
+                        onChange={(e) => setCredits(e.target.value)}
+                        placeholder="Enter credits"
+                        className="w-full p-2 border rounded-md mb-4"
+                    />
+                    <button
+                        onClick={handleAddCredits}
+                        className="py-3 px-3 rounded-lg bg-green-500 font-semibold cursor-pointer text-white hover:bg-green-700 transition">
+                        Add Credits
+                    </button>
+                    {message && <p className="mt-4 text-gray-700">{message}</p>}
+                </div>
+
                 <div className="mt-8 flex justify-center gap-4">
 
                     <button

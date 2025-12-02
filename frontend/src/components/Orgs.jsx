@@ -60,24 +60,30 @@ const Orgs = () => {
 
             <div className="space-y-4">
                 {filteredOrgs.length === 0 ? (<div className='text-center font-medium text-gray-600'>No organizations found.</div>) : (
-
                     filteredOrgs.map(org => (
                         <div
                             key={org.id}
                             onClick={() => navigate(`/org/${org.id}/credits`)}
                             className="p-4 bg-white shadow-md rounded-lg border border-gray-200
-                                   transform transition-all duration-300 ease-in-out
-                                   hover:scale-101 hover:shadow-xl hover:border-blue-300 hover:bg-blue-50 cursor-pointer"
+                transform transition-all duration-300 ease-in-out
+                hover:scale-101 hover:shadow-xl hover:border-blue-300 hover:bg-blue-50 cursor-pointer"
                         >
-                            {/* <p className="text-lg text-center font-medium ">
-                                <span className="font-medium text-gray-600">{org.name}</span>
-                            </p> */}
                             <p className="text-lg text-center font-medium text-gray-400">
                                 {highlightMatch(org.name, search)}
                             </p>
+                            <div className="flex justify-center">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        navigate(`/org/${org.id}`);
+                                    }}
+                                    className="mt-3 px-4 py-2 cursor-pointer bg-cyan-600 text-white rounded-md hover:bg-cyan-700 transition"
+                                >
+                                    View Organization
+                                </button>
+                            </div>
                         </div>
                     ))
-
                 )
                 }
             </div>
