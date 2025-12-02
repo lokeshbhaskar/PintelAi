@@ -8,6 +8,7 @@ const OrgPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [credits, setCredits] = useState("");
+    const [allotments, setAllotments] = useState(0);
     const [message, setMessage] = useState("");
 
     // get org details (name,credits) from backend
@@ -18,8 +19,15 @@ const OrgPage = () => {
                 const data = res.data;
 
                 const filtered = data.find((item) => item.id === Number(id));
-                if (!filtered) setError("Organization not found.");
-                else setOrg(filtered);
+                console.log("filtered", filtered);
+                if (!filtered) {
+                    setError("Organization not found.");
+                }
+                else {
+
+                    setOrg(filtered);
+                    setAllotments(filtered.credits);
+                }
             } catch {
                 setError("Failed to load organization details.");
             } finally {
@@ -42,7 +50,10 @@ const OrgPage = () => {
             );
 
             setMessage(res.data.message);
-            setOrg((prev) => ({ ...prev, credits: prev.credits + Number(credits) }));
+            const sumOfAllotments = res.data.allotments.reduce((sum, item) => sum + item.credits, 0);
+            // console.log("sumOfAllotments", sumOfAllotments);
+            const totalCredits = sumOfAllotments + (org.credits || 0);
+            setAllotments(totalCredits);
             setCredits("");
         } catch {
             setMessage("Failed to add credits");
@@ -58,12 +69,11 @@ const OrgPage = () => {
                 <h1 className="text-2xl font-semibold text-gray-800 mb-6">{org.name}</h1>
                 <div className="p-5 rounded-lg bg-gray-50 border mb-8">
                     <p className="text-sm text-gray-500">Total Credits</p>
-                    <p className="text-3xl font-bold text-gray-900 mt-1">{org.credits}</p>
+                    <p className="text-3xl font-bold text-gray-900 mt-1">{allotments}</p>
                 </div>
 
                 <div className="bg-white p-5 border rounded-lg shadow-sm">
                     <h2 className="text-lg font-medium text-gray-800 mb-3">Add Credits</h2>
-
                     <input
                         type="number"
                         value={credits}
@@ -76,7 +86,7 @@ const OrgPage = () => {
                         onClick={handleAddCredits}
                         className="w-full py-3 bg-gray-600 text-white font-medium rounded-md cursor-pointer hover:bg-gray-700 transition"
                     >
-                        Add Credits
+                    Add Credits
                     </button>
                     {message && <p className="mt-4 font-medium text-gray-800 text-center">{message}</p>}
                 </div>

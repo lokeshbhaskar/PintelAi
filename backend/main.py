@@ -29,7 +29,7 @@ def get_orgs_details():
 def get_org_credits(org_id: int):
     for org in org_details:
         if org.id == org_id:
-            return [org]
+            return org
 
 
  
@@ -38,11 +38,13 @@ def get_org_credits(org_id: int):
 def add_org_credits(org_id: int, body:CreditRequest):
     for org in org_details:
         if org.id == org_id:
-            org.credits += body.credits
-        return {
-            "message": f"Successfully added {body.credits} credits",
-            "org_id": org_id,
-            "new_credits": org.credits
-        }   
+            # org.credits += body.credits
+            org.allotments.append({"credits": body.credits})
+            return {
+                "message": f"Successfully added {body.credits} credits",
+                "org_id": org_id,
+                "allotments": org.allotments
+            }
+    
     raise HTTPException(status_code=404, detail="Organization not found")
 
