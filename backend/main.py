@@ -77,4 +77,16 @@ def approve_credit(org_id: int):
     raise HTTPException(status_code=404, detail="No pending request found for this organization")
 
 
+# reject request
+@app.post("/org/{org_id}/credits/reject")
+def reject_credit(org_id: int):
+    for req in pending_allotments:
+        if req["org_id"] == org_id:
+            pending_allotments.remove(req)
+            return {
+                "message": "Credit request rejected successfully",
+                "org_id": org_id
+            }
+
+    raise HTTPException(status_code=404, detail="No pending request found for this organization")
 
