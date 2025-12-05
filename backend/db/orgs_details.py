@@ -6,7 +6,7 @@ org_details: List[OrgDetails] = [
     OrgDetails(
         id=1,
         name="Pintel Ai",
-        credits=120
+        credits=120,
     ),
     OrgDetails(
         id=2,

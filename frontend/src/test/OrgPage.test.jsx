@@ -1,75 +1,90 @@
-import { expect, beforeEach, test } from "vitest";
-import { render, screen, waitFor, fireEvent } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import OrgPage from "../page/OrgPage";
+import { MemoryRouter, Routes, Route } from "react-router-dom";
 import axios from "axios";
 import AxiosMockAdapter from "axios-mock-adapter";
-import { MemoryRouter, Routes, Route } from "react-router-dom";
+import { describe, test, beforeEach, expect } from "vitest";
 
-const mockAxios = new AxiosMockAdapter(axios)
+import OrgPage from "../page/OrgPage";
 
-const orgId = 2;
-const orgData = [
-    {
-        id: orgId,
-        name: "Amazon",
-        credits: 300,
-        allotments: [
-            { credits: 0 },
-        ]
-    }
-]
+const mockAxios = new AxiosMockAdapter(axios);
 
-beforeEach(() => {
-    mockAxios.reset();
-});
+const orgId = 1;
+const mockOrg = {
+    id: orgId,
+    name: "Pintel Ai",
+    credits: 120,
+    allotments: [{ credits: 30 }, { credits: 50 }]
+};
 
-// 1. Test to check if OrgPage renders org details correctly
-test("renders details and base credits", async () => {
-    mockAxios.onGet("http://localhost:8000/orgs/details").reply(200, orgData);
+describe("OrgPage", () => {
 
-    render(
-        <MemoryRouter initialEntries={[`/org/${orgId}`]}>
-            <Routes>
-                <Route path="/org/:id" element={<OrgPage />} />
-            </Routes>
-        </MemoryRouter>
-    );
-    expect(screen.getByText(/Loading/i)).toBeInTheDocument();
-
-    await waitFor(() => {
-        expect(screen.getByText("Amazon")).toBeInTheDocument();
-        expect(screen.getByText("300")).toBeInTheDocument();
+    beforeEach(() => {
+        mockAxios.reset();
     });
-});
 
-//2. Testing  adding credits updates the allotments correctly
-test.only("adds credits and updates allotments", async () => {
-    mockAxios.onGet("http://localhost:8000/orgs/details").reply(200, orgData);
-    mockAxios.onPost(`http://localhost:8000/org/${orgId}/credits`).reply(200, {
-        message: "Credits added successfully",
-        allotments: [
-            { credits: 50 },
-            { credits: 100 },
-            { credits: 100 }
-        ]
+    
+    // 1. Test: should render organization details and total credits
+    test("renders organization details and correct total credits", async () => {
+        mockAxios
+            .onGet(`http://localhost:8000/orgs/${orgId}/credits`)
+            .reply(200, mockOrg);
+
+        render(
+            <MemoryRouter initialEntries={[`/org/${orgId}`]}>
+                <Routes>
+                    <Route path="/org/:id" element={<OrgPage />} />
+                </Routes>
+            </MemoryRouter>
+        );
+
+        
+        expect(screen.getByText(/Loading/i)).toBeInTheDocument();
+
+        
+        await waitFor(() => {
+            expect(screen.getByText("Pintel Ai")).toBeInTheDocument();
+        });
+        expect(screen.getByText("200")).toBeInTheDocument();
     });
-    render(
-        <MemoryRouter initialEntries={[`/org/${orgId}`]}>
-            <Routes>
-                <Route path="/org/:id" element={<OrgPage />} />
-            </Routes>
-        </MemoryRouter>
-    );
-    await waitFor(() => {
-        expect(screen.getByText("Amazon")).toBeInTheDocument();
+
+     
+    // 2. Test: submitting credit request should show confirmation & clear input
+    test.only("submits credit request and shows pending message", async () => {
+        mockAxios
+            .onGet(`http://localhost:8000/orgs/${orgId}/credits`)
+            .reply(200, mockOrg);
+
+        mockAxios
+            .onPost(`http://localhost:8000/org/${orgId}/credits/requests`)
+            .reply(200, {
+                message: "Credit request created. Pending Approval",
+                request: { org_id: 1, credits: 60 }
+            });
+
+        render(
+            <MemoryRouter initialEntries={[`/org/${orgId}`]}>
+                <Routes>
+                    <Route path="/org/:id" element={<OrgPage />} />
+                </Routes>
+            </MemoryRouter>
+        );
+
+        await waitFor(() => {
+            expect(screen.getByText("Pintel Ai")).toBeInTheDocument();
+        });
+
+        const input = screen.getByPlaceholderText("Enter credits");
+        const button = screen.getByRole("button", { name: /request allotment/i });
+
+        await userEvent.type(input, "60");
+        await userEvent.click(button);
+        await waitFor(() => {
+            expect(
+                screen.getByText(/Pending approval/i)
+            ).toBeInTheDocument();
+        });
+        expect(input.value).toBe("");
     });
-    const input = screen.getByPlaceholderText("Enter credits");
-    // const button = screen.getAllByText("Add Credits")[1];
-    const button = screen.getByRole("button", { name: /add credits/i });
-    await userEvent.type(input, "100");
-    await userEvent.click(button);
-    await waitFor(() => {
-        expect(screen.getByText("550")).toBeInTheDocument();
-    });
+
 });

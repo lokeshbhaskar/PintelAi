@@ -8,57 +8,54 @@ const OrgPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [credits, setCredits] = useState("");
-    const [allotments, setAllotments] = useState(0);
+    const [totalCredits, setTotalCredits] = useState(0);
     const [message, setMessage] = useState("");
 
-    // get org details (name,credits) from backend
+    // Fetch org details including allotments
+    const fetchOrg = async () => {
+        try {
+            const res = await axios.get(`http://localhost:8000/orgs/${id}/credits`);
+            const data = res.data;
+            console.log(data)
+
+            setOrg(data);
+
+            // Sum allotments + base credits
+            const sum = (data.allotments || []).reduce((acc, item) => acc + item.credits, 0);
+            setTotalCredits(data.credits + sum);
+
+        } catch {
+            setError("Failed to load organization details.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchOrg = async () => {
-            try {
-                const res = await axios.get("http://localhost:8000/orgs/details");
-                const data = res.data;
-
-                const filtered = data.find((item) => item.id === Number(id));
-                console.log("filtered", filtered);
-                if (!filtered) {
-                    setError("Organization not found.");
-                }
-                else {
-
-                    setOrg(filtered);
-                    setAllotments(filtered.credits);
-                }
-            } catch {
-                setError("Failed to load organization details.");
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchOrg();
     }, [id]);
-    // handle add credits function
-    const handleAddCredits = async () => {
+
+
+    //  credit request
+    const handleRequestCredits = async () => {
         if (!credits || credits <= 0) {
             setMessage("Enter a valid number");
             return;
         }
         try {
             const res = await axios.post(
-                `http://localhost:8000/org/${id}/credits`,
+                `http://localhost:8000/org/${id}/credits/requests`,
                 { credits: Number(credits) }
             );
 
-            setMessage(res.data.message);
-            const sumOfAllotments = res.data.allotments.reduce((sum, item) => sum + item.credits, 0);
-            // console.log("sumOfAllotments", sumOfAllotments);
-            const totalCredits = sumOfAllotments + (org.credits || 0);
-            setAllotments(totalCredits);
+            setMessage("Credit request submitted. Pending approval.");
             setCredits("");
+
         } catch {
-            setMessage("Failed to add credits");
+            setMessage("Failed to create credit request.");
         }
     };
+
 
     if (loading) return <div className="text-center mt-20 text-xl">Loading...</div>;
     if (error) return <div className="text-center mt-20 text-red-500 text-xl">{error}</div>;
@@ -66,14 +63,17 @@ const OrgPage = () => {
     return (
         <div className="min-h-screen bg-gray-300 flex justify-center items-start py-16 px-4">
             <div className="w-full max-w-lg bg-gray-200 shadow-md rounded-xl p-8 border">
-                <h1 className="text-2xl font-semibold text-gray-800 mb-6">{org.name}</h1>
+                <h1 className="text-2xl font-semibold text-gray-800 mb-6">{org?.name}</h1>
+
+                 
                 <div className="p-5 rounded-lg bg-gray-50 border mb-8">
                     <p className="text-sm text-gray-500">Total Credits</p>
-                    <p className="text-3xl font-bold text-gray-900 mt-1">{allotments}</p>
+                    <p className="text-3xl font-bold text-gray-900 mt-1">{totalCredits}</p>
                 </div>
 
+                 
                 <div className="bg-white p-5 border rounded-lg shadow-sm">
-                    <h2 className="text-lg font-medium text-gray-800 mb-3">Add Credits</h2>
+                    <h2 className="text-lg font-medium text-gray-800 mb-3">Request Credits</h2>
                     <input
                         type="number"
                         value={credits}
@@ -83,11 +83,12 @@ const OrgPage = () => {
                     />
 
                     <button
-                        onClick={handleAddCredits}
+                        onClick={handleRequestCredits}
                         className="w-full py-3 bg-gray-600 text-white font-medium rounded-md cursor-pointer hover:bg-gray-700 transition"
                     >
-                    Add Credits
+                        Request Allotment
                     </button>
+
                     {message && <p className="mt-4 font-medium text-gray-800 text-center">{message}</p>}
                 </div>
             </div>

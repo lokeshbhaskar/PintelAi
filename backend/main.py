@@ -5,6 +5,7 @@ from db.orgs_db import orgs_db
 from db.orgs_details import org_details
 from models.orgs_details_model import OrgDetails
 from models.credit_request import CreditRequest
+from db.pending_allotments import pending_allotments
 
 app = FastAPI()
 
@@ -25,26 +26,55 @@ def get_orgs_details():
     return org_details
 
 
-@app.get("/orgs/{org_id}/credits",response_model=list[OrgDetails])
+@app.get("/orgs/{org_id}/credits",response_model=OrgDetails)
 def get_org_credits(org_id: int):
     for org in org_details:
         if org.id == org_id:
             return org
+        
 
-
- 
-
-@app.post("/org/{org_id}/credits")
-def add_org_credits(org_id: int, body:CreditRequest):
+# request api
+@app.post("/org/{org_id}/credits/requests")
+def request_credit(org_id: int,body:CreditRequest):
     for org in org_details:
         if org.id == org_id:
-            # org.credits += body.credits
-            org.allotments.append({"credits": body.credits})
-            return {
-                "message": f"Successfully added {body.credits} credits",
+            new_request = {
                 "org_id": org_id,
-                "allotments": org.allotments
+                 "credits": body.credits
             }
-    
+            pending_allotments.append(new_request)
+
+            return {
+                "message":"Credit request created. Pending Approval",
+                "request":new_request
+            }
+        
     raise HTTPException(status_code=404, detail="Organization not found")
+
+
+@app.get("/credits/pending")
+def get_pending_requests():
+    return pending_allotments
+
+
+# approve request
+@app.post("/org/{org_id}/credits/approve")
+def approve_credit(org_id: int):
+    for req in pending_allotments:
+        if req["org_id"] == org_id:
+            
+            for org in org_details:
+                if org.id == org_id:
+                    org.allotments.append({"credits": req["credits"]})
+                    pending_allotments.remove(req)
+
+                    return {
+                        "message": "Credit request approved successfully",
+                        "org_id": org_id,
+                        "allotments": org.allotments
+                    }
+                
+    raise HTTPException(status_code=404, detail="No pending request found for this organization")
+
+
 

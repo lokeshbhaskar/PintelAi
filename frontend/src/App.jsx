@@ -3,6 +3,7 @@ import Orgs from './components/Orgs'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import OrgPage from './page/OrgPage'
 import CreditPage from './page/CreditPage'
+import AdminPage from './page/AdminPage'
 
 function App() {
   const [showOrgs, setShowOrgs] = useState(false)
@@ -24,6 +25,7 @@ function App() {
           <Route path='/' element={showOrgs && <Orgs />} />
           <Route path='/orgs/:id' element={<OrgPage />} />
           {/* <Route path='/org/:id/credits' element={<CreditPage />} /> */}
+          <Route path='/admin-page' element={<AdminPage/>} />
         </Routes>
       </BrowserRouter>
     </div>
